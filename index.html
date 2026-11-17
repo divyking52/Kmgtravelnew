@@ -2781,7 +2781,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
             </div>
             <div class="gallery-rail">
               <div class="gallery-rail-meta">
-                <span>FRAME <em id="galleryFrame">01</em> / 09</span>
+                <span>FRAME <em id="galleryFrame">01</em> / <em id="galleryTotal">09</em></span>
                 <div class="gallery-progress" aria-hidden="true"><i id="galleryProgress"></i></div>
               </div>
               <div class="gallery-thumbs" id="galleryThumbs" role="tablist" aria-label="Gallery frames"></div>
@@ -3189,7 +3189,15 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
     svcHoneymoon: 'https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/0a2a200c-ca6f-4464-b6da-aaed667fedbe/svc-honeymoon.jpg',
     svcInsurance: 'https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/dff7701a-0c05-4242-8b3b-0de6f492b049/svc-insurance.jpg',
     svcTours: 'https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/ac3bcf37-0a6e-4f06-8976-824134b4f928/stlucia.jpg',
-    svcTransfers: 'https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/27f505d7-bdf3-4795-a25f-ecb0f6173e06/concierge.jpg'
+    svcTransfers: 'https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/27f505d7-bdf3-4795-a25f-ecb0f6173e06/concierge.jpg',
+    // Extra gallery frames — Caribbean & Mexico atmosphere
+    dominican: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=80',
+    curacao: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?auto=format&fit=crop&w=1800&q=80',
+    stvincent: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1800&q=80',
+    tulum: 'https://images.unsplash.com/photo-1518638150340-f706e86654de?auto=format&fit=crop&w=1800&q=80',
+    riviera: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1800&q=80',
+    sunsetSail: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80',
+    pitonsDusk: 'https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?auto=format&fit=crop&w=1800&q=80'
   };
 
   const SVC_ICONS = {
@@ -4162,7 +4170,18 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       { name: 'Puerto Rico', coords: '18.4655° N · 66.1057° W', img: ASSETS.puertorico, alt: 'Puerto Rico coastal architecture' },
       { name: 'Cozumel', coords: '20.4229° N · 86.9223° W', img: ASSETS.cozumel, alt: 'Cozumel island waters' },
       { name: 'Trinidad & Tobago', coords: '10.4228° N · 61.4796° W', img: ASSETS.trinidad, alt: 'Trinidad and Tobago scenery' },
-      { name: 'Honeymoon light', coords: 'Editorial · KMG archive', img: ASSETS.svcHoneymoon, alt: 'Honeymoon light' }
+      { name: 'Dominican Republic', coords: '18.7357° N · 70.1627° W', img: ASSETS.dominican, alt: 'Dominican Republic turquoise beach' },
+      { name: 'Curaçao', coords: '12.1696° N · 68.9900° W', img: ASSETS.curacao, alt: 'Curaçao colorful harbor architecture' },
+      { name: 'St. Vincent', coords: '13.2528° N · 61.1971° W', img: ASSETS.stvincent, alt: 'St. Vincent and the Grenadines waters' },
+      { name: 'Tulum', coords: '20.2114° N · 87.4654° W', img: ASSETS.tulum, alt: 'Tulum coastline and Caribbean cliffs' },
+      { name: 'Riviera Maya', coords: '20.6296° N · 87.0739° W', img: ASSETS.riviera, alt: 'Riviera Maya resort and lagoon' },
+      { name: 'Caribbean Cruise', coords: 'CLIA · Ocean latitudes', img: ASSETS.svcCruise, alt: 'Caribbean cruise at sea' },
+      { name: 'Resort Stay', coords: 'Preferred suppliers', img: ASSETS.svcStay, alt: 'Luxury resort accommodation' },
+      { name: 'Sunset Sail', coords: 'Golden hour · Open water', img: ASSETS.sunsetSail, alt: 'Sunset sail on open Caribbean water' },
+      { name: 'Pitons at dusk', coords: '13.9094° N · 60.9789° W', img: ASSETS.pitonsDusk, alt: 'St. Lucia Pitons at dusk' },
+      { name: 'Honeymoon light', coords: 'Editorial · KMG archive', img: ASSETS.svcHoneymoon, alt: 'Honeymoon light' },
+      { name: 'Concierge care', coords: 'KMG · On-island support', img: ASSETS.concierge, alt: 'Travel concierge and guest care' },
+      { name: 'Door to the shore', coords: 'Arrive · Begin', img: ASSETS.hero, alt: 'Arrival atmosphere on the shore' }
     ];
 
     const stack = document.getElementById('galleryStack');
@@ -4170,11 +4189,13 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
     const titleEl = document.getElementById('galleryTitle');
     const coordsEl = document.getElementById('galleryCoords');
     const frameEl = document.getElementById('galleryFrame');
+    const totalEl = document.getElementById('galleryTotal');
     const progressEl = document.getElementById('galleryProgress');
     const expandBtn = document.getElementById('galleryExpand');
     if (!stack || !thumbs) return;
 
     const total = GALLERY.length;
+    if (totalEl) totalEl.textContent = String(total).padStart(2, '0');
     let active = 0;
     let galleryST = null;
 
