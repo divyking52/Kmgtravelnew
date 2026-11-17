@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
   // Land on hero for fresh visits — browser + ScrollTrigger pin spacers otherwise restore mid-page
@@ -41,6 +42,11 @@
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: auto; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-scrolling iframe { pointer-events: none; }
 body {
   font-family: var(--font-body);
   background: var(--bg-midnight);
@@ -2655,7 +2661,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
           <h2>Everything for the <em>Journey.</em></h2>
           <p>Our agency provides a range of services for every kind of trip. Please feel free to contact us with your specific travel and vacation needs.</p>
         </div>
-        <div class="svc-arc" id="svcNav" role="tablist" aria-label="KMG services"></div>
+        <div class="svc-arc" id="svcNav" role="tablist" aria-label="KMG services" data-lenis-prevent></div>
         <div class="svc-deck" id="svcDeck">
           <div class="svc-card-back b2"><img id="svcBack2" alt="" loading="lazy" /></div>
           <div class="svc-card-back b1"><img id="svcBack1" alt="" loading="lazy" /></div>
@@ -2791,7 +2797,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
                 <span>FRAME <em id="galleryFrame">01</em> / <em id="galleryTotal">09</em></span>
                 <div class="gallery-progress" aria-hidden="true"><i id="galleryProgress"></i></div>
               </div>
-              <div class="gallery-thumbs" id="galleryThumbs" role="tablist" aria-label="Gallery frames"></div>
+              <div class="gallery-thumbs" id="galleryThumbs" role="tablist" aria-label="Gallery frames" data-lenis-prevent></div>
             </div>
           </div>
         </div>
@@ -2809,7 +2815,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       <span class="eyebrow">Love Stories</span>
       <h2>Real Couples. <em>Real Love Stories.</em></h2>
     </div>
-    <div class="stories-track-wrap" id="storiesWrap">
+    <div class="stories-track-wrap" id="storiesWrap" data-lenis-prevent>
       <div class="stories-track" id="storiesTrack">
         <article class="story-card">
           <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/0a2a200c-ca6f-4464-b6da-aaed667fedbe/svc-honeymoon.jpg" alt="" loading="lazy" />
@@ -3242,9 +3248,47 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 
   gsap.registerPlugin(ScrollTrigger);
 
+  /* ---------- Lenis — smooth scroll (hero door scrub + page) ---------- */
+  let lenis = null;
+  if (!reduced && typeof Lenis !== 'undefined') {
+    lenis = new Lenis({
+      // Slightly longer ease so the hero frame scrub feels cinematic
+      duration: 1.35,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.15,
+      // Keep touch mostly native; Lenis still syncs for desktop hero scrub
+      syncTouch: false,
+      infinite: false
+    });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+    document.documentElement.classList.add('lenis', 'lenis-smooth');
+  }
+
+  function scrollPageTo(y, opts) {
+    const o = opts || {};
+    const top = Math.max(0, y);
+    const immediate = !!o.immediate || reduced;
+    if (lenis) {
+      lenis.scrollTo(top, {
+        immediate: immediate,
+        duration: o.duration,
+        lock: o.lock,
+        force: true
+      });
+      return;
+    }
+    window.scrollTo({ top: top, behavior: immediate ? 'auto' : 'smooth' });
+  }
+
   function landAtHero(force) {
     if (!force && location.hash && location.hash !== '#hero' && location.hash !== '#') return;
-    window.scrollTo(0, 0);
+    scrollPageTo(0, { immediate: true });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   }
@@ -3307,13 +3351,14 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
         landAtHero();
         initHeroDoor();
         requestAnimationFrame(() => {
+          if (lenis) lenis.resize();
           ScrollTrigger.refresh();
           landAtHero();
           if (location.hash && location.hash !== '#hero') {
             const target = document.querySelector(location.hash);
             if (target) {
               const y = Math.round(target.getBoundingClientRect().top + window.pageYOffset);
-              window.scrollTo(0, Math.max(0, y));
+              scrollPageTo(y, { immediate: true });
             }
           }
         });
@@ -3380,6 +3425,10 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
     navToggle.setAttribute('aria-expanded', open);
     mobileMenu.setAttribute('aria-hidden', !open);
     document.body.style.overflow = open ? 'hidden' : '';
+    if (lenis) {
+      if (open) lenis.stop();
+      else lenis.start();
+    }
   });
   function closeMobileMenu() {
     mobileMenu.classList.remove('is-open');
@@ -3387,6 +3436,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
     navToggle.setAttribute('aria-expanded', 'false');
     mobileMenu.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (lenis) lenis.start();
   }
   mobileMenu.querySelectorAll('a, .mobile-quote').forEach((a) => a.addEventListener('click', closeMobileMenu));
 
@@ -3403,9 +3453,13 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       if (hd) document.getElementById('mDest').value = hd.value;
     }
     quoteModal.classList.add('is-open');
+    if (lenis) lenis.stop();
     document.getElementById('mName').focus();
   }
-  function closeQuote() { quoteModal.classList.remove('is-open'); }
+  function closeQuote() {
+    quoteModal.classList.remove('is-open');
+    if (lenis) lenis.start();
+  }
   document.querySelectorAll('[data-open-quote]').forEach((btn) => btn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -4276,7 +4330,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
           return;
         }
         const target = galleryST.start + ((galleryST.end - galleryST.start) * ((i + 0.15) / total));
-        window.scrollTo({ top: target, behavior: reduced ? 'auto' : 'smooth' });
+        scrollPageTo(target, { immediate: reduced });
       });
       thumbs.appendChild(thumb);
     });
@@ -4502,7 +4556,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
     start: 600,
     onUpdate: (self) => backTop.classList.toggle('is-visible', self.scroll() > 600)
   });
-  backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }));
+  backTop.addEventListener('click', () => scrollPageTo(0, { immediate: reduced }));
 
   if (!reduced) {
     gsap.matchMedia().add('(min-width: 721px)', () => {
@@ -4575,10 +4629,12 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       // Defer scroll so the transit timeline is not blocked by ScrollTrigger scrub work
       requestAnimationFrame(() => {
         const y = Math.max(0, sectionTop(el));
-        window.scrollTo(0, y);
+        scrollPageTo(y, { immediate: true });
         requestAnimationFrame(() => {
           const y2 = Math.max(0, sectionTop(el));
-          if (Math.abs(window.pageYOffset - y2) > 2) window.scrollTo(0, y2);
+          if (Math.abs((lenis ? lenis.scroll : window.pageYOffset) - y2) > 2) {
+            scrollPageTo(y2, { immediate: true });
+          }
         });
       });
     }
