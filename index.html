@@ -69,9 +69,11 @@ ul { list-style: none; }
 /* Custom cursor */
 .cursor-dot, .cursor-ring {
   position: fixed; top: 0; left: 0; pointer-events: none; z-index: 10000;
-  border-radius: 50%; transform: translate(-50%, -50%);
-  transition: width .25s var(--ease-out), height .25s var(--ease-out), background .25s, border-color .25s, opacity .25s;
+  border-radius: 50%;
+  opacity: 0; visibility: hidden;
+  transition: width .25s var(--ease-out), height .25s var(--ease-out), background .25s, border-color .25s, opacity .25s, visibility .25s;
 }
+.cursor-dot.is-on, .cursor-ring.is-on { opacity: 1; visibility: visible; }
 .cursor-dot { width: 8px; height: 8px; background: var(--accent-terracotta); mix-blend-mode: difference; }
 .cursor-ring {
   width: 36px; height: 36px; border: 1px solid rgba(246,243,236,.45);
@@ -199,13 +201,15 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 .nav-toggle.is-open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
 .mobile-menu {
-  position: fixed; inset: 0; z-index: 999; background: var(--bg-midnight);
+  position: fixed; inset: 0; z-index: 1100; background: var(--bg-midnight);
   display: flex; flex-direction: column; justify-content: center; padding: 5rem 1.75rem;
   clip-path: circle(0% at calc(100% - 2.5rem) 2.5rem);
   transition: clip-path .7s var(--ease-out);
   pointer-events: none;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
+.site-header:has(+ .mobile-menu.is-open),
+body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 .mobile-menu.is-open { clip-path: circle(150% at calc(100% - 2.5rem) 2.5rem); pointer-events: auto; }
 .mobile-menu .mobile-quote {
   margin-top: 1.75rem; align-self: flex-start;
@@ -305,8 +309,15 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 .hero-vignette {
   position: absolute; inset: 0; z-index: 3; pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(5,9,11,.72) 0%, rgba(5,9,11,.18) 28%, transparent 42%, transparent 58%, rgba(5,9,11,.18) 72%, rgba(5,9,11,.72) 100%),
-    linear-gradient(180deg, rgba(5,9,11,.5) 0%, transparent 22%, transparent 58%, rgba(5,9,11,.55) 100%);
+    linear-gradient(90deg, rgba(5,9,11,.78) 0%, rgba(5,9,11,.28) 26%, transparent 40%, transparent 60%, rgba(5,9,11,.28) 74%, rgba(5,9,11,.78) 100%),
+    linear-gradient(180deg, rgba(5,9,11,.55) 0%, transparent 22%, transparent 58%, rgba(5,9,11,.62) 100%);
+}
+.hero-side p {
+  text-shadow: 0 1px 18px rgba(5,9,11,.55);
+}
+.hero-side h1,
+.hero-side h2 {
+  text-shadow: 0 2px 28px rgba(5,9,11,.45);
 }
 .hero-sides {
   position: absolute; inset: 0; z-index: 5;
@@ -405,7 +416,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 }
 .c-select.is-open .c-select-chevron { transform: rotate(180deg); }
 .c-select-menu {
-  position: fixed; z-index: 90;
+  position: fixed; z-index: 1200;
   margin: 0; padding: .35rem;
   list-style: none;
   background: rgba(12,28,34,.96);
@@ -852,7 +863,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 .why-plane svg { width: 100%; height: 100%; overflow: visible; }
 .why-inset {
   position: absolute;
-  right: -2%; bottom: 9%;
+  right: 4%; bottom: 8%;
   width: min(176px, 36%);
   aspect-ratio: 1;
   border-radius: 50%;
@@ -1018,11 +1029,12 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
   filter: drop-shadow(0 12px 24px rgba(0,0,0,.35));
 }
 .svc-deco-map {
-  position: absolute; right: -2%; bottom: -6%; width: min(38vw, 460px); height: min(34vh, 320px);
+  position: absolute; right: 0; bottom: -6%; width: min(34vw, 420px); height: min(34vh, 320px);
   border-radius: 8px; opacity: .28; transform: rotate(-8deg);
   background-size: cover; background-position: center;
   filter: sepia(.55) saturate(.7) brightness(.85);
   box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  max-width: 42%;
 }
 .svc-deco-compass {
   position: absolute; right: 14%; bottom: 8%; width: 72px; height: 72px; opacity: .75;
@@ -1304,7 +1316,8 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 .phone-body { padding: .6rem .85rem 1rem; display: flex; flex-direction: column; gap: .7rem; flex: 1; }
 .phone-card {
   background: rgba(246,243,236,.06); border: 1px solid rgba(246,243,236,.1);
-  border-radius: 14px; padding: .85rem; opacity: 0; transform: translateY(16px);
+  border-radius: 14px; padding: .85rem;
+  opacity: 1; transform: none;
 }
 .phone-card.alert {
   background: rgba(212,106,78,.16); border-color: rgba(212,106,78,.35);
@@ -1346,7 +1359,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
   overflow: hidden;
   opacity: 0;
   will-change: opacity, clip-path, transform;
-  cursor: none;
+  cursor: pointer;
 }
 .gallery-plane.is-active {
   z-index: 2;
@@ -1961,6 +1974,9 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
     animation-duration: .01ms !important; animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+  .hero-side, .hero-end { opacity: 1 !important; transform: none !important; }
+  .hero-scroll-cue { opacity: 0 !important; }
+  .phone-card { opacity: 1 !important; transform: none !important; }
 }
 
 /* Large / ultrawide — keep composition centered, stop edge stretch */
@@ -2077,10 +2093,10 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 @media (max-width: 900px) {
   .hero-sides {
     grid-template-columns: 1fr;
-    align-content: space-between;
-    gap: 0;
+    align-content: start;
+    gap: 1.25rem;
     padding-top: 5.5rem;
-    padding-bottom: 7.5rem;
+    padding-bottom: 11.5rem;
   }
   .hero-side {
     max-width: 18rem;
@@ -2089,6 +2105,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
   .hero-side-right { justify-self: end; }
   .hero-side h1,
   .hero-side h2 { font-size: clamp(2rem, 9vw, 2.8rem); }
+  .hero-end { padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px)); }
 }
 @media (max-width: 720px) {
   body { cursor: auto; }
@@ -2794,7 +2811,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
             </div>
             <div class="gallery-rail">
               <div class="gallery-rail-meta">
-                <span>FRAME <em id="galleryFrame">01</em> / <em id="galleryTotal">09</em></span>
+                <span>FRAME <em id="galleryFrame">01</em> / <em id="galleryTotal">20</em></span>
                 <div class="gallery-progress" aria-hidden="true"><i id="galleryProgress"></i></div>
               </div>
               <div class="gallery-thumbs" id="galleryThumbs" role="tablist" aria-label="Gallery frames" data-lenis-prevent></div>
@@ -3248,9 +3265,11 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 
   gsap.registerPlugin(ScrollTrigger);
 
-  /* ---------- Lenis — smooth scroll (hero door scrub + page) ---------- */
+  /* ---------- Lenis — smooth scroll (desktop hero scrub + page) ---------- */
   let lenis = null;
-  if (!reduced && typeof Lenis !== 'undefined') {
+  const preferLenis = !reduced && !isTouch && typeof Lenis !== 'undefined'
+    && window.matchMedia('(min-width: 721px)').matches;
+  if (preferLenis) {
     lenis = new Lenis({
       // Slightly longer ease so the hero frame scrub feels cinematic
       duration: 1.35,
@@ -3260,7 +3279,6 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       smoothWheel: true,
       wheelMultiplier: 0.9,
       touchMultiplier: 1.15,
-      // Keep touch mostly native; Lenis still syncs for desktop hero scrub
       syncTouch: false,
       infinite: false
     });
@@ -3370,16 +3388,27 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
   const dot = document.querySelector('.cursor-dot');
   const ring = document.querySelector('.cursor-ring');
   const ringLabel = ring.querySelector('span');
-  let mx = 0, my = 0, rx = 0, ry = 0;
-  if (!isTouch) {
-    window.addEventListener('mousemove', (e) => {
+  let mx = -100, my = -100, rx = -100, ry = -100, cursorReady = false;
+  if (!isTouch && dot && ring) {
+    const armCursor = (e) => {
       mx = e.clientX; my = e.clientY;
-      gsap.set(dot, { x: mx, y: my });
-    });
+      if (!cursorReady) {
+        cursorReady = true;
+        rx = mx; ry = my;
+        gsap.set(dot, { x: mx, y: my, xPercent: -50, yPercent: -50 });
+        gsap.set(ring, { x: mx, y: my, xPercent: -50, yPercent: -50 });
+        dot.classList.add('is-on');
+        ring.classList.add('is-on');
+      } else {
+        gsap.set(dot, { x: mx, y: my, xPercent: -50, yPercent: -50 });
+      }
+    };
+    window.addEventListener('pointermove', armCursor, { passive: true });
     gsap.ticker.add(() => {
+      if (!cursorReady) return;
       rx += (mx - rx) * 0.18;
       ry += (my - ry) * 0.18;
-      gsap.set(ring, { x: rx, y: ry });
+      gsap.set(ring, { x: rx, y: ry, xPercent: -50, yPercent: -50 });
     });
     document.querySelectorAll('[data-cursor], a, button').forEach((el) => {
       el.addEventListener('mouseenter', () => {
@@ -3648,8 +3677,8 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       const duration = video.duration || 4.98;
 
       if (reduced) {
-        video.currentTime = duration;
-        gsap.set([left, right], { opacity: 0 });
+        try { video.currentTime = duration; } catch (e) {}
+        gsap.set([left, right], { opacity: 1, x: 0, clearProps: 'transform' });
         gsap.set(end, { opacity: 1, y: 0 });
         gsap.set(cue, { opacity: 0 });
         return;
@@ -3776,8 +3805,18 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
         );
     }
 
-    if (video.readyState >= 1 && video.duration) ready();
-    else video.addEventListener('loadedmetadata', ready, { once: true });
+    let heroReady = false;
+    const boot = () => {
+      if (heroReady) return;
+      heroReady = true;
+      ready();
+    };
+    if (video.readyState >= 1 && video.duration) boot();
+    else {
+      video.addEventListener('loadedmetadata', boot, { once: true });
+      video.addEventListener('error', boot, { once: true });
+      window.setTimeout(boot, 2500);
+    }
   }
 
   /* ---------- Credentials infinite marquee ---------- */
@@ -4563,7 +4602,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       const tweens = [
         gsap.from('.footer-mega', {
           scrollTrigger: { trigger: '#footer', start: 'top 90%', scrub: 1.2 },
-          y: 90, opacity: 0.35, ease: 'none', immediateRender: false
+          y: 90, ease: 'none', immediateRender: false
         }),
         gsap.from('.footer-brand > *', {
           scrollTrigger: { trigger: '#footer', start: 'top 80%', once: true },
@@ -4739,9 +4778,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
           scrollTrigger: { trigger: nodes[0], start: 'top 90%', once: true },
           y: 22, opacity: 0, duration: 0.65, stagger: 0.06, ease: 'power3.out',
           immediateRender: false,
-          onComplete: sel === '#why .why-item'
-            ? () => gsap.set('#why .why-item', { clearProps: 'opacity,transform' })
-            : undefined
+          onComplete: () => gsap.set(nodes, { clearProps: 'opacity,transform' })
         }));
       });
       gsap.set('#galleryPin', { clearProps: 'clipPath,opacity' });
@@ -4836,11 +4873,12 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
           y: 28, opacity: 0, stagger: 0.08, duration: 0.75, ease: 'power3.out',
           immediateRender: false
         });
+        // Don't animate booking-step opacity — pin scrub owns it
         gsap.from('#booking .booking-step', {
           scrollTrigger: { trigger: '#booking', start: 'top 72%', once: true },
-          y: 36, opacity: 0, stagger: 0.1, duration: 0.8, ease: 'power3.out',
+          y: 28, stagger: 0.1, duration: 0.8, ease: 'power3.out',
           immediateRender: false,
-          onComplete: () => gsap.set('#booking .booking-step', { clearProps: 'opacity,transform' })
+          onComplete: () => gsap.set('#booking .booking-step', { clearProps: 'transform' })
         });
         gsap.fromTo('#bookingVisual',
           { clipPath: 'inset(12% 12% 12% 12%)', opacity: 0 },
@@ -4859,12 +4897,18 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
         });
       },
       shutter() {
+        // Soft fade only — avoid clip-path fighting the gallery pin scrub
         gsap.fromTo('#galleryPin',
-          { clipPath: 'inset(50% 0 50% 0)', opacity: 0.2 },
+          { opacity: 0.35 },
           {
-            clipPath: 'inset(0% 0 0% 0)', opacity: 1, duration: 1.2, ease: 'power4.out',
+            opacity: 1, duration: 0.9, ease: 'power3.out',
             immediateRender: false,
-            scrollTrigger: { trigger: '#gallery', start: 'top 85%', once: true }
+            scrollTrigger: {
+              trigger: '#gallery',
+              start: 'top 85%',
+              once: true,
+              onEnter: () => gsap.set('#galleryPin', { clearProps: 'clipPath' })
+            }
           }
         );
       },
@@ -4877,9 +4921,9 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       },
       bloom() {
         gsap.fromTo('#love .love-visual img',
-          { scale: 1.35, clipPath: 'circle(0% at 50% 50%)' },
+          { scale: 1.18 },
           {
-            scale: 1, clipPath: 'circle(75% at 50% 50%)', duration: 1.5, ease: 'power3.out',
+            scale: 1, duration: 1.35, ease: 'power3.out',
             immediateRender: false,
             scrollTrigger: { trigger: '#love', start: 'top 70%', once: true }
           }
@@ -4887,7 +4931,8 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
         gsap.from('#love .love-copy > *', {
           scrollTrigger: { trigger: '#love', start: 'top 72%', once: true },
           y: 50, opacity: 0, stagger: 0.12, duration: 0.9, ease: 'power3.out',
-          immediateRender: false
+          immediateRender: false,
+          onComplete: () => gsap.set('#love .love-copy > *', { clearProps: 'opacity,transform' })
         });
       },
       rail() {
