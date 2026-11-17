@@ -286,6 +286,10 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; object-position: center center;
   z-index: 1; background: #05090b;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  pointer-events: none;
 }
 .hero-grain {
   position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: .06;
@@ -2435,7 +2439,10 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
         src="assets/door-reveal.mp4"
         muted
         playsinline
+        webkit-playsinline
         preload="auto"
+        disablepictureinpicture
+        disableremoteplayback
         aria-hidden="true"
       ></video>
       <div class="hero-vignette" aria-hidden="true"></div>
@@ -3599,10 +3606,25 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
       gsap.set(end, { opacity: 0, y: 40 });
       gsap.set(cue, { opacity: 0 });
 
+      // Prefetch frames so scroll seeks don't hitch on first scrub
+      try { video.playbackRate = 1; video.pause(); } catch (e) {}
+
       // Intro: sides + scroll cue settle in before scrubbing
+      let scrubBuilt = false;
+      const startScrub = () => {
+        if (scrubBuilt) return;
+        scrubBuilt = true;
+        buildScrub(duration);
+      };
       const intro = gsap.timeline({
         defaults: { ease: 'power3.out' },
-        onComplete: () => buildScrub(duration)
+        onComplete: () => {
+          if (video.readyState >= 3) startScrub();
+          else {
+            video.addEventListener('canplaythrough', startScrub, { once: true });
+            window.setTimeout(startScrub, 1200);
+          }
+        }
       });
       intro
         .to(left, { opacity: 1, x: 0, duration: 1 }, 0.15)
@@ -3611,36 +3633,71 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
     };
 
     function buildScrub(duration) {
-      let lastTime = -1;
-      const setFrame = (progress) => {
-        // Finish the door by ~82%, then hold the last frame while CTAs stay on screen
-        const p = Math.min(1, Math.max(0, progress));
-        const mapped = Math.min(1, p / 0.82);
-        const target = mapped * duration;
-        if (Math.abs(target - lastTime) < 0.015) return;
-        lastTime = target;
-        try { video.currentTime = target; } catch (e) {}
+      // All-intra encode + queued seeks keep scroll scrub from stacking/janking
+      const fps = 24;
+      const frameDur = 1 / fps;
+      let targetTime = 0;
+      let seeking = false;
+      let queued = false;
+
+      const snapFrame = (t) => {
+        const f = Math.round(t / frameDur);
+        return Math.min(duration, Math.max(0, f * frameDur));
       };
 
-      // Dedicated ST for video frames — most reliable scrub path
+      const seekTo = (t) => {
+        targetTime = snapFrame(t);
+        if (seeking) {
+          queued = true;
+          return;
+        }
+        if (Math.abs(targetTime - video.currentTime) < frameDur * 0.4) return;
+        seeking = true;
+        queued = false;
+        const finish = () => {
+          seeking = false;
+          if (queued) seekTo(targetTime);
+        };
+        const onSeeked = () => {
+          video.removeEventListener('seeked', onSeeked);
+          finish();
+        };
+        video.addEventListener('seeked', onSeeked);
+        try {
+          if (typeof video.fastSeek === 'function') video.fastSeek(targetTime);
+          else video.currentTime = targetTime;
+        } catch (e) {
+          video.removeEventListener('seeked', onSeeked);
+          finish();
+        }
+        // Some browsers never fire seeked for tiny jumps — failsafe
+        window.setTimeout(() => {
+          if (!seeking) return;
+          video.removeEventListener('seeked', onSeeked);
+          finish();
+        }, 120);
+      };
+
+      // Scrub progress is smoothed; seek queue never stacks mid-decode
       ScrollTrigger.create({
         trigger: '#hero',
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.35,
+        scrub: 0.85,
         onUpdate: (self) => {
-          setFrame(self.progress);
+          // Finish the door by ~82%, then hold last frame while CTAs stay on screen
+          const mapped = Math.min(1, self.progress / 0.82);
+          seekTo(mapped * duration);
           if (heroProgress) heroProgress.style.width = (self.progress * 100) + '%';
         }
       });
 
-      // Side copy holds, then drifts out as the door opens through
       gsap.timeline({
         scrollTrigger: {
           trigger: '#hero',
           start: 'top top',
           end: 'bottom bottom',
-          scrub: 0.45
+          scrub: 0.85
         }
       })
         .fromTo(cue,
@@ -3658,7 +3715,6 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
           { opacity: 0, x: 80, ease: 'none', immediateRender: false },
           0.48
         )
-        // End CTAs reveal once you've stepped through — hold through the rest of the scrub
         .fromTo(end,
           { opacity: 0, y: 40 },
           { opacity: 1, y: 0, ease: 'none', immediateRender: false },
