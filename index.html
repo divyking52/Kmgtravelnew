@@ -277,7 +277,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
 
 /* HERO — door video scroll scrub */
 .hero {
-  position: relative; height: 340vh; background: #05090b;
+  position: relative; height: 480vh; background: #05090b;
 }
 .hero-sticky {
   position: sticky; top: 0; height: 100vh; overflow: hidden;
@@ -2100,7 +2100,7 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
   .logo-mark { width: 32px; height: 32px; }
   .nav-toggle { width: 40px; height: 40px; display: flex; }
   /* Shorter door scrub on phones — still frame-by-frame */
-  .hero { height: 260vh; }
+  .hero { height: 360vh; }
   .hero-sides {
     padding-left: 1.15rem;
     padding-right: 1.15rem;
@@ -3633,8 +3633,8 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
     };
 
     function buildScrub(duration) {
-      // All-intra encode + queued seeks keep scroll scrub from stacking/janking
-      const fps = 24;
+      // All-intra 48fps encode + queued seeks keep scroll scrub fluid
+      const fps = 48;
       const frameDur = 1 / fps;
       let targetTime = 0;
       let seeking = false;
@@ -3685,8 +3685,8 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
         end: 'bottom bottom',
         scrub: 0.85,
         onUpdate: (self) => {
-          // Finish the door by ~82%, then hold last frame while CTAs stay on screen
-          const mapped = Math.min(1, self.progress / 0.82);
+          // Finish the door by ~88%, then hold last frame while CTAs stay on screen
+          const mapped = Math.min(1, self.progress / 0.88);
           seekTo(mapped * duration);
           if (heroProgress) heroProgress.style.width = (self.progress * 100) + '%';
         }
