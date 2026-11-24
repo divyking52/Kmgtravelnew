@@ -11,7 +11,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
   // Land on hero for fresh visits — browser + ScrollTrigger pin spacers otherwise restore mid-page
   try { history.scrollRestoration = 'manual'; } catch (e) {}
@@ -128,10 +127,11 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
   box-shadow: 0 12px 40px rgba(0,0,0,.28);
 }
 /* Light nav over sand sections — no midnight pill floating on cream */
-.site-header.is-on-sand.is-scrolled .nav-shell {
-  background: rgba(247, 243, 236, .88);
+.site-header.is-on-sand .nav-shell {
+  background: rgba(247, 243, 236, .9);
   border-color: rgba(18, 32, 36, .1);
   box-shadow: 0 10px 32px rgba(18, 32, 36, .1);
+  backdrop-filter: blur(16px) saturate(130%);
 }
 .site-header.is-on-sand .logo-mark { color: #1a3a44; }
 .site-header.is-on-sand .logo-text strong { color: var(--text-ink); }
@@ -316,6 +316,11 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity .45s ease;
+}
+.hero-door-video.is-ready {
+  opacity: 1;
 }
 .hero-grain {
   position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: .06;
@@ -658,6 +663,10 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 .packages {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
   background:
     radial-gradient(ellipse 70% 55% at 12% 18%, rgba(27,77,62,.28), transparent 58%),
     radial-gradient(ellipse 50% 45% at 88% 8%, rgba(212,106,78,.12), transparent 52%),
@@ -868,6 +877,13 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   background: #f3eee5;
   color: var(--text-ink);
   overflow: hidden;
+}
+.why-clip-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 .why-visual {
   position: relative;
@@ -1317,7 +1333,13 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 .booking-visual img.is-active { opacity: 1; transform: scale(1); }
 
 /* App */
-.app-section { background: linear-gradient(165deg, #143038 0%, #0A181D 55%, #0f2228 100%); }
+.app-section {
+  background: linear-gradient(165deg, #143038 0%, #0A181D 55%, #0f2228 100%);
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
 .app-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center;
 }
@@ -1360,23 +1382,36 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   background: #050d10;
   position: relative;
   padding: 0;
-  overflow: clip;
+  overflow: hidden;
   color: var(--text-cream);
+  width: 100%;
+}
+.gallery-scroll {
+  position: relative;
+  width: 100%;
 }
 .gallery-pin {
   position: relative;
+  width: 100%;
+  max-width: none;
   height: 100vh;
-  min-height: 640px;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 0;
+  box-sizing: border-box;
 }
 .gallery-stage {
   position: relative;
+  width: 100%;
   height: 100%;
   overflow: hidden;
+  background: #050d10;
 }
 .gallery-stack {
   position: absolute;
   inset: 0;
   z-index: 1;
+  background: #050d10;
 }
 .gallery-plane {
   position: absolute;
@@ -1384,20 +1419,21 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   margin: 0;
   overflow: hidden;
   opacity: 0;
-  will-change: opacity, clip-path, transform;
+  will-change: opacity, clip-path;
   cursor: pointer;
+  background: #050d10;
 }
 .gallery-plane.is-active {
   z-index: 2;
-  opacity: 1;
 }
 .gallery-plane img {
   width: 100%; height: 100%; object-fit: cover;
   object-position: center 55%;
-  transform: scale(1.12);
+  /* GSAP owns transform (scale / xPercent) — no CSS transform here */
   transform-origin: center center;
   will-change: transform;
   pointer-events: none;
+  display: block;
 }
 .gallery-veil {
   position: absolute; inset: 0; z-index: 3; pointer-events: none;
@@ -1556,13 +1592,13 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   position: absolute;
   left: 0;
   right: 0;
-  height: 50vh;
+  height: 3px;
   background: var(--bg-sand);
   pointer-events: none;
   z-index: 0;
 }
-.stories::before { top: -50vh; }
-.stories::after { bottom: -50vh; }
+.stories::before { top: -2px; }
+.stories::after { bottom: -2px; }
 .stories > * { position: relative; z-index: 1; }
 .stories .section-head {
   flex-shrink: 0;
@@ -1644,6 +1680,8 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 .love {
   background: var(--bg-midnight);
   display: grid; grid-template-columns: 1.1fr .9fr; min-height: 80vh;
+  position: relative;
+  z-index: 6; /* above sand bleed from stories / accredit */
 }
 .love-copy {
   padding: clamp(3rem, 7vw, 6rem) clamp(1.5rem, 4vw, 3.5rem);
@@ -1663,15 +1701,16 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   width: 100%;
   max-width: none;
   margin: 0;
-  min-height: calc(100vh + 24vh);
-  min-height: calc(100svh + 24vh);
-  min-height: calc(100dvh + 24vh);
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: max(5rem, 12vh);
-  padding-bottom: max(4rem, 12vh);
+  gap: clamp(0.75rem, 2vh, 1.25rem);
+  padding-top: max(4.5rem, 10vh);
+  padding-bottom: max(3.5rem, 8vh);
   padding-left: clamp(1.25rem, 4vw, 3rem);
   padding-right: clamp(1.25rem, 4vw, 3rem);
   overflow: visible;
@@ -1684,17 +1723,17 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   position: absolute;
   left: 0;
   right: 0;
-  height: 50vh;
+  height: 3px;
   background: var(--bg-sand);
   pointer-events: none;
   z-index: 0;
 }
-.accredit::before { top: -50vh; }
-.accredit::after { bottom: -50vh; }
+.accredit::before { top: -2px; }
+.accredit::after { bottom: -2px; }
 .accredit > * { position: relative; z-index: 1; }
 .accredit .section-head {
   flex-shrink: 0;
-  margin-bottom: clamp(0.85rem, 2.2vh, 1.6rem);
+  margin-bottom: 0;
   max-width: 720px;
 }
 .accredit .section-head h2 {
@@ -1710,20 +1749,20 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 .accredit .eyebrow { color: var(--accent-emerald); }
 .cred-marquee {
   position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  width: auto;
+  height: auto;
   margin: 0 calc(-1 * clamp(1.25rem, 4vw, 3rem));
-  padding: .2rem 0 .5rem;
+  padding: .15rem 0;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  display: block;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
 }
 .cred-marquee::before,
 .cred-marquee::after {
   content: "";
-  position: absolute; top: 0; bottom: 0; width: min(100px, 10vw); z-index: 2;
+  position: absolute; top: 0; bottom: 0; width: min(88px, 8vw); z-index: 2;
   pointer-events: none;
 }
 .cred-marquee::before {
@@ -1735,23 +1774,23 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   background: linear-gradient(270deg, var(--bg-sand) 0%, rgba(246,243,236,.85) 50%, transparent 100%);
 }
 .cred-rail {
-  display: flex; gap: 0.9rem; width: max-content;
-  padding: .35rem clamp(1.25rem, 4vw, 3rem);
+  display: flex; gap: 0.85rem; width: max-content;
+  padding: .2rem clamp(1.25rem, 4vw, 3rem);
   animation: credMarquee 48s linear infinite;
   will-change: transform;
-  align-self: center;
 }
 .cred-marquee:hover .cred-rail,
 .cred-marquee:focus-within .cred-rail {
   animation-play-state: paused;
 }
 .cred-card {
-  flex: 0 0 min(260px, 72vw);
+  flex: 0 0 min(248px, 70vw);
   background: #fff; border-radius: 16px;
-  padding: clamp(1rem, 2vh, 1.35rem);
+  padding: clamp(0.95rem, 1.8vh, 1.25rem);
   min-height: 0;
-  height: min(32vh, 250px);
-  display: flex; flex-direction: column; gap: 0.7rem;
+  height: clamp(200px, 26vh, 236px);
+  box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 0.55rem;
   border: 1px solid rgba(18,32,36,.06);
   transition: transform .35s var(--ease-out), box-shadow .35s;
 }
@@ -1782,7 +1821,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 }
 .ccra-banner {
   flex-shrink: 0;
-  margin-top: clamp(0.75rem, 2vh, 1.35rem);
+  margin-top: 0;
   display: grid; grid-template-columns: auto 1fr; gap: 1.15rem; align-items: center;
   padding: clamp(1rem, 2vh, 1.35rem) clamp(1.1rem, 2vw, 1.5rem);
   border-radius: 16px; background: var(--bg-midnight); color: var(--text-cream);
@@ -1807,25 +1846,82 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 }
 
 /* Inspiration */
-.inspire { background: var(--bg-midnight); position: relative; z-index: 1; }
+.inspire {
+  background: var(--bg-midnight);
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: max(4.5rem, 10vh);
+  padding-bottom: max(3.5rem, 8vh);
+}
+.inspire .section-head {
+  flex-shrink: 0;
+  margin-bottom: clamp(0.85rem, 2vh, 1.5rem);
+  max-width: 720px;
+}
+.inspire .section-head h2 {
+  font-size: clamp(2.1rem, 4.5vh, 3.4rem);
+  line-height: 1.05;
+}
 .inspire-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.55rem, 1.2vh, 0.9rem);
+  height: min(62vh, 560px);
+  max-height: 560px;
 }
 .inspire-card {
-  position: relative; min-height: 340px; border-radius: 16px; overflow: hidden;
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  display: block;
 }
-.inspire-card:nth-child(1), .inspire-card:nth-child(6) {
-  grid-column: span 2; min-height: 420px;
+.inspire-card:nth-child(1) { grid-column: 1 / span 2; grid-row: 1; }
+.inspire-card:nth-child(2) { grid-column: 3; grid-row: 1; }
+.inspire-card:nth-child(3) { grid-column: 4; grid-row: 1; }
+.inspire-card:nth-child(4) { grid-column: 1; grid-row: 2; }
+.inspire-card:nth-child(5) { grid-column: 2; grid-row: 2; }
+.inspire-card:nth-child(6) { grid-column: 3 / span 2; grid-row: 2; }
+.inspire-card:nth-child(7) { grid-column: 1 / span 2; grid-row: 3; }
+.inspire-card:nth-child(8) { grid-column: 3 / span 2; grid-row: 3; }
+.inspire-card img {
+  width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0;
+  transition: transform .7s var(--ease-out);
 }
-.inspire-card img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.inspire-card:hover img { transform: scale(1.05); }
 .inspire-card .cap {
-  position: absolute; inset: auto 0 0 0; padding: 1.4rem;
-  background: linear-gradient(transparent, rgba(10,24,29,.9));
+  position: absolute; inset: auto 0 0 0; padding: clamp(0.85rem, 1.6vh, 1.25rem);
+  background: linear-gradient(transparent, rgba(10,24,29,.92));
 }
 .inspire-card h3 {
-  font-family: var(--font-display); font-size: 1.8rem; font-weight: 500; margin-bottom: .35rem;
+  font-family: var(--font-display); font-size: clamp(1.15rem, 2.2vh, 1.65rem);
+  font-weight: 500; margin-bottom: .2rem; line-height: 1.1;
 }
-.inspire-card p { font-size: .88rem; color: rgba(246,243,236,.72); }
+.inspire-card p {
+  font-size: clamp(.75rem, 1.35vh, .88rem);
+  color: rgba(246,243,236,.72);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 /* FAQ */
 .faq {
@@ -1834,60 +1930,49 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   width: 100%;
   max-width: none;
   margin: 0;
-  /* border-box: pad is inside min-height — add extra so sand outruns the viewport */
-  min-height: calc(100vh + 24vh);
-  min-height: calc(100svh + 24vh);
-  min-height: calc(100dvh + 24vh);
+  min-height: 0;
   height: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-top: max(5.5rem, 14vh);
-  padding-bottom: max(5.5rem, 14vh);
-  padding-left: clamp(1.25rem, 4vw, 3rem);
-  padding-right: clamp(1.25rem, 4vw, 3rem);
+  display: block;
+  padding: clamp(4.5rem, 9vw, 7rem) clamp(1.25rem, 4vw, 3rem);
   overflow: visible;
   position: relative;
   z-index: 5;
 }
-/* Sand extensions cover any sub-pixel seam with inspire / enquiry */
+/* Hairline sand extensions — cover sub-pixel seams without invading neighbors */
 .faq::before,
 .faq::after {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
-  height: 50vh;
+  height: 3px;
   background: var(--bg-sand);
   pointer-events: none;
   z-index: 0;
 }
-.faq::before { top: -50vh; }
-.faq::after { bottom: -50vh; }
+.faq::before { top: -2px; }
+.faq::after { bottom: -2px; }
 .faq > * { position: relative; z-index: 1; }
 .faq .section-head {
-  flex-shrink: 0;
-  margin-bottom: clamp(1rem, 3vh, 2.25rem);
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
   max-width: 720px;
 }
 .faq .section-head h2 {
-  font-size: clamp(2.1rem, 4.8vh, 3.5rem);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
   line-height: 1.05;
 }
 .faq .eyebrow { color: var(--accent-emerald); }
 .faq-list {
   max-width: min(920px, 100%);
   width: 100%;
-  flex: 0 1 auto;
-  min-height: 0;
-  overflow: auto;
 }
 .faq-item { border-top: 1px solid rgba(18,32,36,.12); }
 .faq-item:last-child { border-bottom: 1px solid rgba(18,32,36,.12); }
 .faq-q {
   width: 100%; display: grid; grid-template-columns: 3rem 1fr auto; gap: 1rem; align-items: center;
-  text-align: left; padding: clamp(1rem, 2.4vh, 1.35rem) 0; font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2.4vh, 1.65rem); font-weight: 500; line-height: 1.2;
+  text-align: left; padding: 1.15rem 0; font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.2vw, 1.55rem); font-weight: 500; line-height: 1.25;
+  color: inherit; background: none; border: 0; cursor: pointer;
 }
 .faq-q .n { font-family: var(--font-mono); font-size: .75rem; color: var(--accent-terracotta); }
 .faq-icon {
@@ -1907,15 +1992,23 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 .faq-item.is-open .faq-a { grid-template-rows: 1fr; }
 .faq-a > div { overflow: hidden; }
 .faq-a p {
-  padding: 0 0 clamp(1rem, 2vh, 1.35rem) 4rem;
+  padding: 0 0 1.15rem 4rem;
   color: rgba(18,32,36,.7);
   max-width: 42rem;
-  font-size: clamp(0.92rem, 1.5vh, 1.02rem);
-  line-height: 1.45;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 /* Enquiry */
-.enquiry { background: var(--bg-midnight); position: relative; overflow: hidden; }
+.enquiry {
+  background: var(--bg-midnight);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
 .enquiry-bg {
   position: absolute; inset: 0; opacity: .25;
   background:
@@ -2215,6 +2308,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     animation-duration: .01ms !important; animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+  .hero-door-video { opacity: 1; transition: none; }
   .hero-side, .hero-end { opacity: 1 !important; transform: none !important; }
   .hero-scroll-cue { opacity: 0 !important; }
   .phone-card { opacity: 1 !important; transform: none !important; }
@@ -2229,10 +2323,14 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     padding-left: 2.5rem;
     padding-right: 2.5rem;
   }
-  /* Full-bleed sand sections — don't leave midnight gutters on wide screens */
+  /* Full-bleed sections — don't leave midnight gutters on wide screens */
   .stories.section-pad,
   .accredit.section-pad,
-  .faq.section-pad {
+  .faq.section-pad,
+  .packages.section-pad,
+  .app-section.section-pad,
+  .inspire.section-pad,
+  .enquiry.section-pad {
     max-width: none;
     width: 100%;
     margin-left: 0;
@@ -2335,8 +2433,35 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   .pkg-body { grid-template-columns: 1fr; }
   .pkg-stack-wrap, .pkg-stack { min-height: 420px; height: 420px; }
   .pkg-card { width: 100%; border-radius: 22px; }
-  .inspire-grid { grid-template-columns: 1fr 1fr; }
-  .inspire-card:nth-child(1), .inspire-card:nth-child(6) { grid-column: span 2; }
+  .inspire {
+    min-height: 0;
+    height: auto;
+    display: block;
+    padding-top: 4rem;
+    padding-bottom: 3.5rem;
+  }
+  .inspire-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    height: auto;
+    max-height: none;
+    gap: 0.75rem;
+  }
+  .inspire-card {
+    min-height: 200px;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .inspire-card:nth-child(n) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .inspire-card:nth-child(1),
+  .inspire-card:nth-child(6) {
+    grid-column: span 2;
+    aspect-ratio: 21 / 9;
+    min-height: 220px;
+  }
   .footer-top { grid-template-columns: 1fr; }
   .footer-cta { align-items: flex-start; }
   .footer-inner { grid-template-columns: 1fr 1fr; }
@@ -2368,6 +2493,11 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     background: rgba(10, 24, 29, .55);
     backdrop-filter: blur(14px) saturate(130%);
     border-color: rgba(246,243,236,.12);
+  }
+  .site-header.is-on-sand .nav-shell {
+    background: rgba(247, 243, 236, .92);
+    border-color: rgba(18, 32, 36, .12);
+    box-shadow: 0 8px 24px rgba(18, 32, 36, .1);
   }
   .nav-actions .nav-cta { display: none; }
   .logo-text span { display: none; }
@@ -2435,7 +2565,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   }
   .why-thumb { grid-column: 1 / -1; height: 72px; border-radius: 16px; justify-self: stretch; }
   .why-go { display: none; }
-  #services.section-pad {
+  #services .section-pad {
     padding-top: 4.75rem;
     padding-bottom: 3rem;
   }
@@ -2577,7 +2707,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   }
   .gallery-plane img {
     object-position: center 78%;
-    transform: scale(1.1);
+    /* GSAP owns transform — do not fight inline scale/xPercent */
   }
   .gallery-copy h2 { font-size: clamp(2.2rem, 10vw, 3.1rem); }
   .gallery-index { display: none; }
@@ -2684,25 +2814,43 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     line-clamp: unset;
     overflow: visible;
   }
-  .inspire-grid { grid-template-columns: 1fr; }
-  .inspire-card, .inspire-card:nth-child(1), .inspire-card:nth-child(6) {
-    grid-column: span 1; min-height: 240px;
+  .inspire {
+    min-height: 0;
+    height: auto;
+    display: block;
+    padding: 3.25rem 1.15rem 2.75rem;
+  }
+  .inspire .section-head { margin-bottom: 1.35rem; }
+  .inspire .section-head h2 { font-size: clamp(2.1rem, 8.5vw, 2.9rem); }
+  .inspire-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    height: auto;
+    max-height: none;
+    gap: 0.7rem;
+  }
+  .inspire-card,
+  .inspire-card:nth-child(n) {
+    grid-column: auto;
+    grid-row: auto;
+    min-height: 220px;
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+  .inspire-card h3 { font-size: 1.45rem; }
+  .inspire-card p {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   /* FAQ / enquiry / footer */
   .faq {
-    height: auto;
-    min-height: 0;
-    max-height: none;
-    display: block;
     padding: 3.25rem 1.15rem 2.75rem;
-    overflow: visible;
   }
   .faq::before,
   .faq::after { display: none; }
   .faq .section-head { margin-bottom: 1.5rem; }
   .faq .section-head h2 { font-size: clamp(2.1rem, 8.5vw, 2.9rem); }
-  .faq-list { overflow: visible; }
   .faq-a p { padding-left: 0; }
   .faq-q { grid-template-columns: 2.2rem 1fr auto; gap: .65rem; }
   .enquiry-shell { gap: 1.75rem; }
@@ -2942,14 +3090,14 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   </section>
 
   <!-- WHY — curved split + pill cards -->
-  <svg class="why-clip-defs" width="0" height="0" aria-hidden="true" focusable="false">
-    <defs>
-      <clipPath id="whyWaveClip" clipPathUnits="objectBoundingBox">
-        <path d="M0.1,0 C0.04,0.14 0.14,0.28 0.07,0.42 C0.02,0.56 0.12,0.72 0.06,0.86 C0.03,0.93 0.08,0.97 0.05,1 L1,1 L1,0 Z"/>
-      </clipPath>
-    </defs>
-  </svg>
   <section class="why" id="why" data-enter="split" data-sect="03" data-sect-name="About Us">
+    <svg class="why-clip-defs" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <clipPath id="whyWaveClip" clipPathUnits="objectBoundingBox">
+          <path d="M0.1,0 C0.04,0.14 0.14,0.28 0.07,0.42 C0.02,0.56 0.12,0.72 0.06,0.86 C0.03,0.93 0.08,0.97 0.05,1 L1,1 L1,0 Z"/>
+        </clipPath>
+      </defs>
+    </svg>
     <div class="why-visual">
       <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/b46a65fb-ba70-4457-9220-0ec39cfc4a5a/hero.jpg" alt="Caribbean beach with palms and turquoise water" loading="lazy" />
       <div class="why-plane" aria-hidden="true">
@@ -2973,7 +3121,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
       <span class="why-eyebrow">— Why Choose Us —</span>
       <h2 class="why-title">Your Journey. <em>Our Expertise.</em></h2>
       <p class="why-lead">We are a CCRA-accredited travel agency aligned with preferred suppliers. We specialize in group and family travel, all-inclusive, destination weddings, and honeymoons across the Caribbean and Mexico.</p>
-      <div class="why-list" id="whyList" role="list"></div>
+      <div class="why-list" id="whyList"></div>
     </div>
   </section>
 
@@ -3029,7 +3177,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
             </div>
             <p class="svc-card-copy" id="svcCopy"></p>
             <div class="svc-feats" id="svcPoints"></div>
-            <button class="btn btn-primary" type="button" id="svcCta" data-open-quote>Request Flight Quote <span aria-hidden="true">→</span></button>
+            <button class="btn btn-primary" type="button" id="svcCta">Request Flight Quote <span aria-hidden="true">→</span></button>
           </article>
         </div>
       </div>
@@ -3155,7 +3303,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   </section>
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
     <button class="lightbox-close" type="button" id="lightboxClose" aria-label="Close">✕</button>
-    <img src="" alt="" id="lightboxImg" />
+    <img alt="" id="lightboxImg" decoding="async" />
   </div>
 
   <!-- TESTIMONIALS -->
@@ -3277,28 +3425,36 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     </div>
     <div class="inspire-grid">
       <a class="inspire-card" href="#destinations" data-cursor="READ">
-        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/ac3bcf37-0a6e-4f06-8976-824134b4f928/stlucia.jpg" alt="" loading="lazy" />
+        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/ac3bcf37-0a6e-4f06-8976-824134b4f928/stlucia.jpg" alt="St. Lucia coastline and Pitons" loading="lazy" />
         <div class="cap"><h3>St. Lucia</h3><p>Dramatic Pitons, luxury resorts, and stunning sunsets.</p></div>
       </a>
       <a class="inspire-card" href="#destinations" data-cursor="READ">
-        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/26545695-f7b1-4040-83af-796a9720202a/cancun.jpg" alt="" loading="lazy" />
+        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/26545695-f7b1-4040-83af-796a9720202a/cancun.jpg" alt="Cancún turquoise shoreline" loading="lazy" />
         <div class="cap"><h3>Cancún</h3><p>Turquoise waters and top-rated all-inclusive resorts.</p></div>
       </a>
       <a class="inspire-card" href="#destinations" data-cursor="READ">
-        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/0603e8ba-cd23-44d9-8865-52fe026f047b/grenada.jpg" alt="" loading="lazy" />
+        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/0603e8ba-cd23-44d9-8865-52fe026f047b/grenada.jpg" alt="Grenada Spice Island landscape" loading="lazy" />
         <div class="cap"><h3>Grenada</h3><p>The Spice Island — intimate, secluded, lush.</p></div>
       </a>
       <a class="inspire-card" href="#destinations" data-cursor="READ">
-        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/07fc0a10-8e34-4d10-9368-c59afee7a653/barbados.jpg" alt="" loading="lazy" />
+        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/07fc0a10-8e34-4d10-9368-c59afee7a653/barbados.jpg" alt="Barbados beach and clear water" loading="lazy" />
         <div class="cap"><h3>Barbados</h3><p>Crystal waters, fine dining, charming island life.</p></div>
       </a>
       <a class="inspire-card" href="#destinations" data-cursor="READ">
-        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/9b956374-5234-4fb1-ba73-1ad555f3ff2c/jamaica.jpg" alt="" loading="lazy" />
+        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/9b956374-5234-4fb1-ba73-1ad555f3ff2c/jamaica.jpg" alt="Jamaica tropical coastline" loading="lazy" />
         <div class="cap"><h3>Jamaica &amp; DR</h3><p>Adventure meets all-inclusive ease.</p></div>
       </a>
       <a class="inspire-card" href="#destinations" data-cursor="READ">
-        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/d48f2879-a01b-4175-8f96-c48e5038a045/puertorico.jpg" alt="" loading="lazy" />
+        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/d48f2879-a01b-4175-8f96-c48e5038a045/puertorico.jpg" alt="Puerto Rico coastal town" loading="lazy" />
         <div class="cap"><h3>Puerto Rico &amp; Curaçao</h3><p>Romance, culture, and colorful coasts.</p></div>
+      </a>
+      <a class="inspire-card" href="#destinations" data-cursor="READ">
+        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/96455574-545a-43f0-b106-c669a2c1f173/cozumel.jpg" alt="Cozumel island waters" loading="lazy" />
+        <div class="cap"><h3>Cozumel &amp; St. Vincent</h3><p>Diving reefs, volcanic beaches, serene escapes.</p></div>
+      </a>
+      <a class="inspire-card" href="#destinations" data-cursor="READ">
+        <img src="https://media.storebox.ai/media/c266d7c2-ab03-4095-9d1b-7835aab79a24/0981086e-e234-4bfe-9dbd-80f8fab1085d/trinidad.jpg" alt="Trinidad and Tobago scenery" loading="lazy" />
+        <div class="cap"><h3>Trinidad &amp; Tobago</h3><p>Creole culture, Carnival energy, twin-island calm.</p></div>
       </a>
     </div>
   </section>
@@ -3311,28 +3467,28 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     </div>
     <div class="faq-list" id="faqList">
       <div class="faq-item">
-        <button class="faq-q" type="button" aria-expanded="false">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faqPanel1" id="faqBtn1">
           <span class="n">01</span>
           <span>What's included in an all-inclusive honeymoon or group package?</span>
           <span class="faq-icon" aria-hidden="true"></span>
         </button>
-        <div class="faq-a"><div><p>Flights, transfers, resort accommodations, meals, drinks, and select activities.</p></div></div>
+        <div class="faq-a" id="faqPanel1" role="region" aria-labelledby="faqBtn1"><div><p>Flights, transfers, resort accommodations, meals, drinks, and select activities.</p></div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" type="button" aria-expanded="false">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faqPanel2" id="faqBtn2">
           <span class="n">02</span>
           <span>Can we customize our itinerary?</span>
           <span class="faq-icon" aria-hidden="true"></span>
         </button>
-        <div class="faq-a"><div><p>Yes! Free Independent Travel (FIT) and custom itineraries built around your preferences and budget.</p></div></div>
+        <div class="faq-a" id="faqPanel2" role="region" aria-labelledby="faqBtn2"><div><p>Yes! Free Independent Travel (FIT) and custom itineraries built around your preferences and budget.</p></div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" type="button" aria-expanded="false">
+        <button class="faq-q" type="button" aria-expanded="false" aria-controls="faqPanel3" id="faqBtn3">
           <span class="n">03</span>
           <span>Do you handle destination weddings as well?</span>
           <span class="faq-icon" aria-hidden="true"></span>
         </button>
-        <div class="faq-a"><div><p>Yes! We specialize in both honeymoons, destination weddings, and family/group travel.</p></div></div>
+        <div class="faq-a" id="faqPanel3" role="region" aria-labelledby="faqBtn3"><div><p>Yes! We specialize in both honeymoons, destination weddings, and family/group travel.</p></div></div>
       </div>
     </div>
   </section>
@@ -3595,6 +3751,9 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches || 'ontouchstart' in window;
   if (isTouch) document.body.classList.add('is-touch');
 
+  // Stop browser restoring mid-hero scroll on reload (causes door-video frame flash)
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+
   gsap.registerPlugin(ScrollTrigger);
 
   /* ---------- Lenis — smooth scroll (desktop hero scrub + page) ---------- */
@@ -3619,6 +3778,11 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     // Keep 0 so Lenis + ScrollTrigger (hero scrub) stay in lockstep
     gsap.ticker.lagSmoothing(0);
     document.documentElement.classList.add('lenis', 'lenis-smooth');
+  }
+
+  function getScrollY() {
+    if (lenis) return lenis.scroll;
+    return window.pageYOffset || document.documentElement.scrollTop || 0;
   }
 
   function scrollPageTo(y, opts) {
@@ -3668,8 +3832,10 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   let progress = 0;
   const preload = Object.values(ASSETS).slice(0, 8).map((src) => new Promise((resolve) => {
     const img = new Image();
-    img.onload = img.onerror = resolve;
+    const done = () => resolve();
+    img.onload = img.onerror = done;
     img.src = src;
+    setTimeout(done, 3500);
   }));
   const preloadVideo = new Promise((resolve) => {
     if (!heroDoor) return resolve();
@@ -3690,13 +3856,16 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     loaderBar.style.width = progress + '%';
   }, 80);
 
-  Promise.all([...preload, preloadVideo]).then(() => {
+  let loaderDone = false;
+  function dismissLoader() {
+    if (loaderDone) return;
+    loaderDone = true;
     clearInterval(tickLoader);
     progress = 100;
     loaderPct.textContent = '100';
     loaderBar.style.width = '100%';
     gsap.to(loader, {
-      yPercent: -100, duration: reduced ? 0.01 : 0.9, ease: 'power4.inOut', delay: 0.2,
+      yPercent: -100, duration: reduced ? 0.01 : 0.9, ease: 'power4.inOut', delay: 0.15,
       onComplete: () => {
         loader.style.display = 'none';
         landAtHero();
@@ -3708,14 +3877,18 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
           if (location.hash && location.hash !== '#hero') {
             const target = document.querySelector(location.hash);
             if (target) {
-              const y = Math.round(target.getBoundingClientRect().top + window.pageYOffset);
+              const y = Math.round(target.getBoundingClientRect().top + getScrollY());
               scrollPageTo(y, { immediate: true });
             }
           }
         });
       }
     });
-  });
+  }
+
+  Promise.all([...preload, preloadVideo]).then(dismissLoader);
+  // Never leave the hero trapped behind a stuck loader
+  setTimeout(dismissLoader, 6500);
 
   /* ---------- Cursor ---------- */
   const dot = document.querySelector('.cursor-dot');
@@ -3781,7 +3954,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     onUpdate: (self) => header.classList.toggle('is-scrolled', self.scroll() > 80)
   });
   // Switch nav to light chrome when overlapping sand sections
-  const sandSections = ['#stories', '#accreditations', '#faq', '#booking'].
+  const sandSections = ['#destinations', '#why', '#booking', '#stories', '#accreditations', '#faq'].
     map((sel) => document.querySelector(sel)).filter(Boolean);
   function syncNavSand() {
     if (!header || !sandSections.length) return;
@@ -3822,6 +3995,23 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   }
   mobileMenu.querySelectorAll('a, .mobile-quote').forEach((a) => a.addEventListener('click', closeMobileMenu));
 
+  /* ---------- Overlay scroll lock ---------- */
+  let scrollLockCount = 0;
+  function lockPageScroll() {
+    scrollLockCount += 1;
+    if (scrollLockCount === 1) {
+      document.body.style.overflow = 'hidden';
+      if (lenis) lenis.stop();
+    }
+  }
+  function unlockPageScroll() {
+    scrollLockCount = Math.max(0, scrollLockCount - 1);
+    if (scrollLockCount === 0) {
+      document.body.style.overflow = '';
+      if (lenis) lenis.start();
+    }
+  }
+
   /* ---------- Quote modal ---------- */
   const quoteModal = document.getElementById('quoteModal');
   function openQuote(prefill) {
@@ -3834,29 +4024,38 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
       if (hs) document.getElementById('mTrip').value = hs.value;
       if (hd) document.getElementById('mDest').value = hd.value;
     }
+    if (!quoteModal.classList.contains('is-open')) lockPageScroll();
     quoteModal.classList.add('is-open');
-    if (lenis) lenis.stop();
     document.getElementById('mName').focus();
   }
   function closeQuote() {
+    if (!quoteModal.classList.contains('is-open')) return;
     quoteModal.classList.remove('is-open');
-    if (lenis) lenis.start();
+    unlockPageScroll();
   }
-  document.querySelectorAll('[data-open-quote]').forEach((btn) => btn.addEventListener('click', (e) => {
+  // Delegation so dynamically injected CTAs (packages stack) work too
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-open-quote]');
+    if (!btn) return;
     e.preventDefault();
     e.stopPropagation();
     openQuote();
-  }));
+  });
   document.getElementById('quoteClose').addEventListener('click', closeQuote);
   quoteModal.addEventListener('click', (e) => { if (e.target === quoteModal) closeQuote(); });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const openSelect = document.querySelector('.c-select.is-open');
-      if (openSelect && openSelect._cSelectClose) {
-        openSelect._cSelectClose();
-        return;
-      }
+    if (e.key !== 'Escape') return;
+    const openSelect = document.querySelector('.c-select.is-open');
+    if (openSelect && openSelect._cSelectClose) {
+      openSelect._cSelectClose();
+      return;
+    }
+    if (quoteModal.classList.contains('is-open')) {
       closeQuote();
+      return;
+    }
+    const lb = document.getElementById('lightbox');
+    if (lb && lb.classList.contains('is-open')) {
       closeLightbox();
     }
   });
@@ -3930,6 +4129,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 
       window.addEventListener('resize', () => { if (root.classList.contains('is-open')) placeMenu(); });
       window.addEventListener('scroll', () => { if (root.classList.contains('is-open')) placeMenu(); }, true);
+      if (lenis) lenis.on('scroll', () => { if (root.classList.contains('is-open')) placeMenu(); });
 
       trigger.addEventListener('click', (e) => {
         e.preventDefault();
@@ -4023,8 +4223,27 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     if (!video) return;
 
     video.pause();
-    video.currentTime = 0;
+    video.classList.remove('is-ready');
     try { video.removeAttribute('controls'); } catch (e) {}
+
+    const parkFrameZero = (done) => {
+      const finish = () => {
+        video.removeEventListener('seeked', finish);
+        if (typeof done === 'function') done();
+      };
+      video.addEventListener('seeked', finish);
+      try {
+        if (video.currentTime > 0.001) video.currentTime = 0;
+        else finish();
+      } catch (e) {
+        finish();
+      }
+      window.setTimeout(finish, 120);
+    };
+
+    const revealVideo = () => {
+      requestAnimationFrame(() => video.classList.add('is-ready'));
+    };
 
     const ready = () => {
       const duration = video.duration || 4.98;
@@ -4034,6 +4253,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
         gsap.set([left, right], { opacity: 1, x: 0, clearProps: 'transform' });
         gsap.set(end, { opacity: 1, y: 0 });
         gsap.set(cue, { opacity: 0 });
+        revealVideo();
         return;
       }
 
@@ -4042,30 +4262,34 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
       gsap.set(end, { opacity: 0, y: 40 });
       gsap.set(cue, { opacity: 0 });
 
-      // Prefetch frames so scroll seeks don't hitch on first scrub
       try { video.playbackRate = 1; video.pause(); } catch (e) {}
 
-      // Intro: sides + scroll cue settle in before scrubbing
-      let scrubBuilt = false;
-      const startScrub = () => {
-        if (scrubBuilt) return;
-        scrubBuilt = true;
-        buildScrub(duration);
-      };
-      const intro = gsap.timeline({
-        defaults: { ease: 'power3.out' },
-        onComplete: () => {
-          if (video.readyState >= 3) startScrub();
-          else {
-            video.addEventListener('canplaythrough', startScrub, { once: true });
-            window.setTimeout(startScrub, 1200);
+      // Park at frame 0 off-screen (opacity 0), then reveal — avoids reload frame flash
+      parkFrameZero(() => {
+        landAtHero(true);
+        revealVideo();
+
+        let scrubBuilt = false;
+        const startScrub = () => {
+          if (scrubBuilt) return;
+          scrubBuilt = true;
+          buildScrub(duration);
+        };
+        const intro = gsap.timeline({
+          defaults: { ease: 'power3.out' },
+          onComplete: () => {
+            if (video.readyState >= 3) startScrub();
+            else {
+              video.addEventListener('canplaythrough', startScrub, { once: true });
+              window.setTimeout(startScrub, 1200);
+            }
           }
-        }
+        });
+        intro
+          .to(left, { opacity: 1, x: 0, duration: 1 }, 0.15)
+          .to(right, { opacity: 1, x: 0, duration: 1 }, 0.28)
+          .to(cue, { opacity: 1, duration: 0.7 }, 0.55);
       });
-      intro
-        .to(left, { opacity: 1, x: 0, duration: 1 }, 0.15)
-        .to(right, { opacity: 1, x: 0, duration: 1 }, 0.28)
-        .to(cue, { opacity: 1, duration: 0.7 }, 0.55);
     };
 
     function buildScrub(duration) {
@@ -4076,7 +4300,6 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
       let targetFrame = 0;
       let seeking = false;
       let raf = 0;
-      let warmDone = false;
 
       const timeForFrame = (f) => Math.min(duration, Math.max(0, f * frameDur));
 
@@ -4092,7 +4315,6 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
           settled = true;
           seeking = false;
           video.removeEventListener('seeked', onSeeked);
-          // Catch up if scroll moved while we were decoding
           if (Math.abs(timeForFrame(targetFrame) - video.currentTime) >= frameDur * 0.3) {
             if (!raf) raf = requestAnimationFrame(applySeek);
           }
@@ -4113,31 +4335,50 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
         if (!raf) raf = requestAnimationFrame(applySeek);
       };
 
-      // Warm decoder caches so the first scrub doesn't hitch
+      // Warm decoder on a hidden clone — never seek the on-screen video through frames
       const warmCache = () => {
-        if (warmDone) return;
-        warmDone = true;
-        let i = 0;
-        const step = Math.max(1, Math.floor(totalFrames / 24));
-        const tick = () => {
-          if (i >= totalFrames) {
-            video.currentTime = 0;
-            return;
-          }
-          const onSeeked = () => {
-            video.removeEventListener('seeked', onSeeked);
-            i += step;
-            window.setTimeout(tick, 0);
+        try {
+          const probe = video.cloneNode(false);
+          probe.muted = true;
+          probe.playsInline = true;
+          probe.preload = 'auto';
+          probe.setAttribute('aria-hidden', 'true');
+          probe.style.cssText = 'position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+          document.body.appendChild(probe);
+          const src = video.currentSrc || video.src;
+          if (src) probe.src = src;
+          let i = 0;
+          const step = Math.max(1, Math.floor(totalFrames / 16));
+          const cleanup = () => {
+            try { probe.remove(); } catch (e) {}
           };
-          video.addEventListener('seeked', onSeeked);
-          try { video.currentTime = timeForFrame(i); }
-          catch (e) { i = totalFrames; tick(); }
-        };
-        tick();
+          const tick = () => {
+            if (i >= totalFrames) {
+              cleanup();
+              return;
+            }
+            const onSeeked = () => {
+              probe.removeEventListener('seeked', onSeeked);
+              i += step;
+              window.setTimeout(tick, 0);
+            };
+            probe.addEventListener('seeked', onSeeked);
+            try { probe.currentTime = timeForFrame(i); }
+            catch (e) { cleanup(); }
+          };
+          const startWarm = () => tick();
+          if (probe.readyState >= 1) startWarm();
+          else {
+            probe.addEventListener('loadedmetadata', startWarm, { once: true });
+            window.setTimeout(cleanup, 8000);
+          }
+        } catch (e) { /* warm is best-effort */ }
       };
       warmCache();
 
-      ScrollTrigger.create({
+      landAtHero(true);
+
+      const st = ScrollTrigger.create({
         trigger: '#hero',
         start: 'top top',
         end: 'bottom bottom',
@@ -4148,6 +4389,16 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
           queueFrame(mapped * duration);
           if (heroProgress) heroProgress.style.width = (self.progress * 100) + '%';
         }
+      });
+
+      // Snap scrub to real scroll after layout — kills reload mid-frame glitch
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+        landAtHero(true);
+        const p = st.progress || 0;
+        const mapped = Math.min(1, p / 0.88);
+        queueFrame(mapped * duration);
+        if (heroProgress) heroProgress.style.width = (p * 100) + '%';
       });
 
       gsap.timeline({
@@ -4370,14 +4621,18 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     stage.addEventListener('touchmove', onPointerMove, { passive: true });
     stage.addEventListener('touchend', onPointerUp);
 
-    // Wheel
+    // Wheel — only horizontal / shift+wheel advances the arc; vertical scrolls the page
     let wheelLock = false;
     stage.addEventListener('wheel', (e) => {
-      if (Math.abs(e.deltaY) < 8 && Math.abs(e.deltaX) < 8) return;
+      const absX = Math.abs(e.deltaX);
+      const absY = Math.abs(e.deltaY);
+      if (absX < 8 && absY < 8) return;
+      const horizontal = absX > absY || e.shiftKey;
+      if (!horizontal) return;
       e.preventDefault();
       if (wheelLock) return;
       wheelLock = true;
-      const dir = (e.deltaY + e.deltaX) > 0 ? 1 : -1;
+      const dir = (e.deltaX || e.deltaY) > 0 ? 1 : -1;
       goTo(active + dir);
       setTimeout(() => { wheelLock = false; }, 550);
     }, { passive: false });
@@ -4527,6 +4782,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     btn.type = 'button';
     btn.className = 'svc-nav-btn' + (i === 0 ? ' is-active' : '');
     btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
     btn.setAttribute('aria-label', s.title);
     btn.innerHTML = '<span class="svc-ico" aria-hidden="true">' + (SVC_ICONS[s.icon] || SVC_ICONS.bag) + '</span><span class="svc-label">' + s.title + '</span>';
     btn.addEventListener('click', () => setService(i));
@@ -4536,7 +4792,10 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   function setService(i) {
     const s = SERVICES[i];
     const n = SERVICES.length;
-    [...svcNav.children].forEach((c, idx) => c.classList.toggle('is-active', idx === i));
+    [...svcNav.children].forEach((c, idx) => {
+      c.classList.toggle('is-active', idx === i);
+      c.setAttribute('aria-selected', idx === i ? 'true' : 'false');
+    });
     const activeBtn = svcNav.children[i];
     if (activeBtn) scrollRailTo(activeBtn, reduced);
     document.getElementById('svcNum').textContent = String(i + 1).padStart(2, '0');
@@ -4552,13 +4811,17 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     )).join('');
     const cta = document.getElementById('svcCta');
     cta.innerHTML = s.cta + ' <span aria-hidden="true">→</span>';
-    if (s.href.startsWith('http')) {
-      cta.onclick = () => window.open(s.href, '_blank', 'noopener');
-      cta.removeAttribute('data-open-quote');
-    } else {
-      cta.setAttribute('data-open-quote', '');
-      cta.onclick = () => openQuote();
-    }
+    // Own the click exclusively — do not also keep data-open-quote (would double-fire)
+    cta.removeAttribute('data-open-quote');
+    cta.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (s.href && s.href.startsWith('http')) {
+        window.open(s.href, '_blank', 'noopener');
+      } else {
+        openQuote();
+      }
+    };
     if (reduced || window.matchMedia('(max-width: 720px)').matches) {
       gsap.set('#svcCard > *', { clearProps: 'opacity,transform' });
       return;
@@ -4590,17 +4853,18 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'why-item' + (i === 0 ? ' is-active' : '');
-    btn.setAttribute('role', 'listitem');
     btn.innerHTML =
       '<span class="why-ico" aria-hidden="true">' + (SVC_ICONS[item.icon] || SVC_ICONS.map) + '</span>' +
       '<span class="why-copy"><h3>' + item.title + '</h3><p>' + item.copy + '</p></span>' +
       '<span class="why-thumb"><img src="' + item.img + '" alt="" loading="lazy" /></span>' +
       '<span class="why-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>';
-    btn.addEventListener('click', () => setWhyActive(i));
-    btn.addEventListener('mouseenter', () => { if (!isTouch) setWhyActive(i); });
+    btn.addEventListener('click', () => setWhyActive(i, true));
+    btn.addEventListener('mouseenter', () => { if (!isTouch) setWhyActive(i, true); });
     whyList.appendChild(btn);
   });
-  function setWhyActive(i) {
+  let whyManualUntil = 0;
+  function setWhyActive(i, manual) {
+    if (manual) whyManualUntil = performance.now() + 1400;
     [...whyList.children].forEach((el, idx) => el.classList.toggle('is-active', idx === i));
   }
   ScrollTrigger.create({
@@ -4608,6 +4872,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     start: 'top 55%',
     end: 'bottom 45%',
     onUpdate: (self) => {
+      if (performance.now() < whyManualUntil) return;
       const idx = Math.min(WHY.length - 1, Math.floor(self.progress * WHY.length));
       setWhyActive(idx);
     }
@@ -4682,9 +4947,14 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   const lightboxImg = document.getElementById('lightboxImg');
   function openLightbox(src, alt) {
     lightboxImg.src = src; lightboxImg.alt = alt || '';
+    if (!lightbox.classList.contains('is-open')) lockPageScroll();
     lightbox.classList.add('is-open');
   }
-  function closeLightbox() { lightbox.classList.remove('is-open'); }
+  function closeLightbox() {
+    if (!lightbox.classList.contains('is-open')) return;
+    lightbox.classList.remove('is-open');
+    unlockPageScroll();
+  }
   document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
 
@@ -4805,15 +5075,16 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
             xPercent: -local * 4
           });
         } else if (idx === i + 1) {
-          // Next: revealed under the wipe + gentle zoom in
+          // Next sits under the wipe — only light up once the wipe begins
+          const showNext = local > 0.5;
           gsap.set(plane, {
-            opacity: 1,
+            opacity: showNext ? 1 : 0,
             clipPath: 'inset(0 0 0 0)',
             zIndex: 2
           });
           gsap.set(img, {
-            scale: 1.18 - local * 0.06,
-            xPercent: (1 - local) * 3
+            scale: 1.16 - Math.max(0, local - 0.5) * 0.08,
+            xPercent: (1 - local) * 2.5
           });
         } else if (idx < i) {
           gsap.set(plane, { opacity: 0, zIndex: 1, clipPath: 'inset(0 100% 0 0)' });
@@ -4832,26 +5103,47 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
       return;
     }
 
+    function syncGalleryPinSize() {
+      const pin = document.getElementById('galleryPin');
+      if (!pin) return;
+      // ScrollTrigger freezes a content-box width that can leave a dark side gutter
+      gsap.set(pin, {
+        width: window.innerWidth,
+        maxWidth: 'none',
+        height: window.innerHeight,
+        maxHeight: 'none',
+        boxSizing: 'border-box'
+      });
+    }
+
     // Desktop: scrubbed pinned viewfinder. Mobile: single frame + thumb taps (no multi-viewport pin).
     const galleryMM = gsap.matchMedia();
     galleryMM.add('(min-width: 721px)', () => {
       galleryST = ScrollTrigger.create({
         trigger: '#galleryScroll',
         start: 'top top',
-        end: () => '+=' + (window.innerHeight * total * 0.95),
+        end: () => '+=' + Math.round(window.innerHeight * total * 0.92),
         pin: '#galleryPin',
-        scrub: 1.1,
+        scrub: 0.85,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onUpdate: (self) => renderViewfinder(self.progress)
+        onRefresh: syncGalleryPinSize,
+        onEnter: syncGalleryPinSize,
+        onEnterBack: syncGalleryPinSize,
+        onUpdate: (self) => {
+          renderViewfinder(self.progress);
+        }
       });
-      renderViewfinder(0);
+      syncGalleryPinSize();
+      renderViewfinder(galleryST.progress || 0);
       return () => {
         if (galleryST) { galleryST.kill(); galleryST = null; }
+        gsap.set('#galleryPin', { clearProps: 'width,maxWidth,height,maxHeight,left,top,position,transform,opacity' });
       };
     });
     galleryMM.add('(max-width: 720px)', () => {
       galleryST = null;
+      gsap.set('#galleryPin', { clearProps: 'width,maxWidth,height,maxHeight,left,top,position,transform,opacity' });
       gsap.set(planes, { clipPath: 'inset(0 0 0 0)' });
       gsap.set(images, { scale: 1.04, xPercent: 0 });
       setActive(active || 0, true);
@@ -5025,7 +5317,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
       const node = el.parentElement && el.parentElement.classList.contains('pin-spacer')
         ? el.parentElement
         : el;
-      return Math.round(node.getBoundingClientRect().top + window.pageYOffset);
+      return Math.round(node.getBoundingClientRect().top + getScrollY());
     }
 
     function jumpTo(el) {
@@ -5035,7 +5327,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
         scrollPageTo(y, { immediate: true });
         requestAnimationFrame(() => {
           const y2 = Math.max(0, sectionTop(el));
-          if (Math.abs((lenis ? lenis.scroll : window.pageYOffset) - y2) > 2) {
+          if (Math.abs(getScrollY() - y2) > 2) {
             scrollPageTo(y2, { immediate: true });
           }
         });
@@ -5264,18 +5556,18 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
         });
       },
       shutter() {
-        // Soft fade only — avoid clip-path fighting the gallery pin scrub
+        // Soft fade only — never leave opacity/transform on the pinned node
         gsap.fromTo('#galleryPin',
-          { opacity: 0.35 },
+          { opacity: 0.4 },
           {
-            opacity: 1, duration: 0.9, ease: 'power3.out',
+            opacity: 1, duration: 0.85, ease: 'power3.out',
             immediateRender: false,
             scrollTrigger: {
               trigger: '#gallery',
               start: 'top 85%',
-              once: true,
-              onEnter: () => gsap.set('#galleryPin', { clearProps: 'clipPath' })
-            }
+              once: true
+            },
+            onComplete: () => gsap.set('#galleryPin', { clearProps: 'opacity,clipPath' })
           }
         );
       },
@@ -5304,11 +5596,13 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
       },
       rail() {
         gsap.fromTo('.cred-marquee',
-          { y: 60, opacity: 0 },
+          { y: 40, opacity: 0 },
           {
-            y: 0, opacity: 1, duration: 1.1, ease: 'power3.out',
+            y: 0, opacity: 1, duration: 1, ease: 'power3.out',
             immediateRender: false,
-            scrollTrigger: { trigger: '#accreditations', start: 'top 80%', once: true }
+            scrollTrigger: { trigger: '#accreditations', start: 'top 80%', once: true },
+            // Drop GSAP transform so CSS marquee animation stays clean
+            onComplete: () => gsap.set('.cred-marquee', { clearProps: 'transform,translate,rotate,scale,opacity' })
           }
         );
         gsap.fromTo('.ccra-banner',
@@ -5316,7 +5610,8 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
           {
             clipPath: 'inset(0 0% 0 0%)', opacity: 1, duration: 1.15, ease: 'power4.out',
             immediateRender: false,
-            scrollTrigger: { trigger: '#accreditations', start: 'top 55%', once: true }
+            scrollTrigger: { trigger: '#accreditations', start: 'top 55%', once: true },
+            onComplete: () => gsap.set('.ccra-banner', { clearProps: 'clipPath,opacity' })
           }
         );
       },
@@ -5372,10 +5667,12 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     };
     }); // end desktop matchMedia
 
-    // Ensure credentials rail never keeps a stuck GSAP filter after jump-scrolls
+    // Credentials rail — never leave stuck GSAP props after jump-scrolls / refresh
     ScrollTrigger.addEventListener('refresh', () => {
       const marquee = document.querySelector('.cred-marquee');
-      if (marquee) gsap.set(marquee, { clearProps: 'filter' });
+      if (marquee) gsap.set(marquee, { clearProps: 'filter,transform,translate,rotate,scale,opacity' });
+      const banner = document.querySelector('.ccra-banner');
+      if (banner) gsap.set(banner, { clearProps: 'filter,clipPath,opacity' });
     });
   })();
 })();
