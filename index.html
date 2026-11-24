@@ -127,6 +127,22 @@ body.is-touch .cursor-dot, body.is-touch .cursor-ring { display: none; }
   border-color: rgba(200, 169, 126, .18);
   box-shadow: 0 12px 40px rgba(0,0,0,.28);
 }
+/* Light nav over sand sections — no midnight pill floating on cream */
+.site-header.is-on-sand.is-scrolled .nav-shell {
+  background: rgba(247, 243, 236, .88);
+  border-color: rgba(18, 32, 36, .1);
+  box-shadow: 0 10px 32px rgba(18, 32, 36, .1);
+}
+.site-header.is-on-sand .logo-mark { color: #1a3a44; }
+.site-header.is-on-sand .logo-text strong { color: var(--text-ink); }
+.site-header.is-on-sand .logo-text span { color: var(--accent-emerald); opacity: 1; }
+.site-header.is-on-sand .nav-links a { color: rgba(18, 32, 36, .72); }
+.site-header.is-on-sand .nav-links a:hover,
+.site-header.is-on-sand .nav-links a:focus-visible { color: var(--text-ink); }
+.site-header.is-on-sand .nav-toggle {
+  border-color: rgba(18, 32, 36, .18);
+}
+.site-header.is-on-sand .nav-toggle span { background: var(--text-ink); }
 .logo {
   display: flex; align-items: center; gap: .7rem; flex-shrink: 0;
   z-index: 2;
@@ -352,7 +368,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 }
 .hero-side-right p { margin-left: auto; }
 .hero-end {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 8;
   display: flex; flex-direction: column; align-items: center; text-align: center;
   padding: 0 clamp(1.25rem, 4vw, 3rem) clamp(1.5rem, 4vh, 2.75rem);
   pointer-events: none;
@@ -380,10 +396,13 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   backdrop-filter: blur(18px) saturate(130%);
   box-shadow: 0 16px 40px rgba(0,0,0,.28);
 }
-.hero-enquiry label {
+.hero-enquiry-field {
   display: flex; flex-direction: column; gap: .28rem; min-width: 0;
+  text-align: left;
+}
+.hero-enquiry-label {
   font-family: var(--font-mono); font-size: .58rem; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--accent-gold); text-align: left;
+  color: var(--accent-gold);
 }
 .hero-enquiry .btn {
   white-space: nowrap; padding: .75rem 1.1rem; font-size: .7rem;
@@ -416,7 +435,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 }
 .c-select.is-open .c-select-chevron { transform: rotate(180deg); }
 .c-select-menu {
-  position: fixed; z-index: 1200;
+  position: fixed; z-index: 9500;
   margin: 0; padding: .35rem;
   list-style: none;
   background: rgba(12,28,34,.96);
@@ -452,14 +471,16 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 .c-select-native {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  pointer-events: none;
 }
 .hero-scroll-cue {
-  position: absolute; left: 50%; bottom: 1.5rem; z-index: 7;
+  position: absolute; left: 50%; bottom: 1.5rem; z-index: 5;
   transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; gap: .55rem;
   font-family: var(--font-mono); font-size: .58rem; letter-spacing: .16em;
   text-transform: uppercase; color: rgba(246,243,236,.55);
   opacity: 0;
+  pointer-events: none;
 }
 .hero-scroll-cue .line {
   width: 1px; height: 42px; background: rgba(246,243,236,.2); position: relative; overflow: hidden;
@@ -476,6 +497,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 .hero-progress {
   position: absolute; left: 0; right: 0; bottom: 0; height: 2px; z-index: 7;
   background: rgba(246,243,236,.08);
+  pointer-events: none;
 }
 .hero-progress span {
   display: block; height: 100%; width: 0%;
@@ -1509,25 +1531,39 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 
 /* Testimonials */
 .stories {
-  background: var(--bg-sand); color: var(--text-ink); overflow: hidden;
+  background: var(--bg-sand); color: var(--text-ink); overflow: visible;
   box-sizing: border-box;
   width: 100%;
   max-width: none;
-  margin: -1px 0 0;
-  min-height: 100vh;
-  min-height: 100dvh;
-  height: 100vh;
-  height: 100dvh;
+  margin: 0;
+  min-height: calc(100vh + 24vh);
+  min-height: calc(100svh + 24vh);
+  min-height: calc(100dvh + 24vh);
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: clamp(4.75rem, 10vh, 6.5rem);
-  padding-bottom: clamp(1.25rem, 3.5vh, 2.5rem);
+  padding-top: max(5rem, 12vh);
+  padding-bottom: max(4rem, 12vh);
   padding-left: clamp(1.25rem, 4vw, 3rem);
   padding-right: clamp(1.25rem, 4vw, 3rem);
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
+.stories::before,
+.stories::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50vh;
+  background: var(--bg-sand);
+  pointer-events: none;
+  z-index: 0;
+}
+.stories::before { top: -50vh; }
+.stories::after { bottom: -50vh; }
+.stories > * { position: relative; z-index: 1; }
 .stories .section-head {
   flex-shrink: 0;
   margin-bottom: clamp(0.85rem, 2.2vh, 1.75rem);
@@ -1627,21 +1663,35 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   width: 100%;
   max-width: none;
   margin: 0;
-  min-height: 100vh;
-  min-height: 100dvh;
-  height: 100vh;
-  height: 100dvh;
+  min-height: calc(100vh + 24vh);
+  min-height: calc(100svh + 24vh);
+  min-height: calc(100dvh + 24vh);
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: clamp(4.75rem, 10vh, 6.5rem);
-  padding-bottom: clamp(1.25rem, 3.5vh, 2.5rem);
+  padding-top: max(5rem, 12vh);
+  padding-bottom: max(4rem, 12vh);
   padding-left: clamp(1.25rem, 4vw, 3rem);
   padding-right: clamp(1.25rem, 4vw, 3rem);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
+.accredit::before,
+.accredit::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50vh;
+  background: var(--bg-sand);
+  pointer-events: none;
+  z-index: 0;
+}
+.accredit::before { top: -50vh; }
+.accredit::after { bottom: -50vh; }
+.accredit > * { position: relative; z-index: 1; }
 .accredit .section-head {
   flex-shrink: 0;
   margin-bottom: clamp(0.85rem, 2.2vh, 1.6rem);
@@ -1757,7 +1807,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
 }
 
 /* Inspiration */
-.inspire { background: var(--bg-midnight); }
+.inspire { background: var(--bg-midnight); position: relative; z-index: 1; }
 .inspire-grid {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
 }
@@ -1784,21 +1834,37 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
   width: 100%;
   max-width: none;
   margin: 0;
-  min-height: 100vh;
-  min-height: 100dvh;
-  height: 100vh;
-  height: 100dvh;
+  /* border-box: pad is inside min-height — add extra so sand outruns the viewport */
+  min-height: calc(100vh + 24vh);
+  min-height: calc(100svh + 24vh);
+  min-height: calc(100dvh + 24vh);
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-top: clamp(4.75rem, 10vh, 6.5rem);
-  padding-bottom: clamp(1.5rem, 4vh, 3rem);
+  padding-top: max(5.5rem, 14vh);
+  padding-bottom: max(5.5rem, 14vh);
   padding-left: clamp(1.25rem, 4vw, 3rem);
   padding-right: clamp(1.25rem, 4vw, 3rem);
-  overflow: hidden;
+  overflow: visible;
   position: relative;
-  z-index: 2;
+  z-index: 5;
 }
+/* Sand extensions cover any sub-pixel seam with inspire / enquiry */
+.faq::before,
+.faq::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50vh;
+  background: var(--bg-sand);
+  pointer-events: none;
+  z-index: 0;
+}
+.faq::before { top: -50vh; }
+.faq::after { bottom: -50vh; }
+.faq > * { position: relative; z-index: 1; }
 .faq .section-head {
   flex-shrink: 0;
   margin-bottom: clamp(1rem, 3vh, 2.25rem);
@@ -2174,7 +2240,6 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     padding-left: clamp(2.5rem, 4vw, 3.5rem);
     padding-right: clamp(2.5rem, 4vw, 3.5rem);
   }
-  .stories.section-pad { margin-top: -1px; }
   .hero-sides {
     left: max(0px, calc((100% - 1680px) / 2));
     right: max(0px, calc((100% - 1680px) / 2));
@@ -2554,7 +2619,10 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     max-height: none;
     display: block;
     padding: 3.25rem 1.15rem 2.75rem;
+    overflow: hidden;
   }
+  .stories::before,
+  .stories::after { display: none; }
   .stories .section-head { margin-bottom: 1.5rem; }
   .stories .section-head h2 { font-size: clamp(2.1rem, 8.5vw, 2.9rem); }
   .stories-track-wrap { overflow: hidden; display: block; }
@@ -2584,6 +2652,8 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     padding: 3.25rem 1.15rem 2.75rem;
     overflow: visible;
   }
+  .accredit::before,
+  .accredit::after { display: none; }
   .accredit .section-head { margin-bottom: 1.5rem; }
   .accredit .section-head h2 { font-size: clamp(2.1rem, 8.5vw, 2.9rem); }
   .accredit .section-head p { font-size: .92rem; }
@@ -2628,6 +2698,8 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     padding: 3.25rem 1.15rem 2.75rem;
     overflow: visible;
   }
+  .faq::before,
+  .faq::after { display: none; }
   .faq .section-head { margin-bottom: 1.5rem; }
   .faq .section-head h2 { font-size: clamp(2.1rem, 8.5vw, 2.9rem); }
   .faq-list { overflow: visible; }
@@ -2752,8 +2824,8 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
           <a class="btn btn-ghost magnetic" href="#destinations" data-cursor="EXPLORE">Explore Destinations</a>
         </div>
         <form class="hero-enquiry" id="heroEnquiry" onsubmit="return false;">
-          <label>
-            Trip Style
+          <div class="hero-enquiry-field">
+            <span class="hero-enquiry-label">Trip Style</span>
             <div class="c-select" data-cselect>
               <button class="c-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Trip style">
                 <span class="c-select-value">Group / Family Vacation</span>
@@ -2772,9 +2844,9 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
                 <option>Custom FIT Getaway</option>
               </select>
             </div>
-          </label>
-          <label>
-            Destination
+          </div>
+          <div class="hero-enquiry-field">
+            <span class="hero-enquiry-label">Destination</span>
             <div class="c-select" data-cselect>
               <button class="c-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Destination">
                 <span class="c-select-value">Caribbean Islands</span>
@@ -2791,7 +2863,7 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
                 <option>Undecided — Inspire Me</option>
               </select>
             </div>
-          </label>
+          </div>
           <button class="btn btn-primary" type="button" data-open-quote data-cursor="QUOTE">Request a Quote</button>
         </form>
       </div>
@@ -3708,6 +3780,26 @@ body:has(.mobile-menu.is-open) .site-header { z-index: 1200; }
     start: 80,
     onUpdate: (self) => header.classList.toggle('is-scrolled', self.scroll() > 80)
   });
+  // Switch nav to light chrome when overlapping sand sections
+  const sandSections = ['#stories', '#accreditations', '#faq', '#booking'].
+    map((sel) => document.querySelector(sel)).filter(Boolean);
+  function syncNavSand() {
+    if (!header || !sandSections.length) return;
+    const band = header.getBoundingClientRect();
+    const midY = band.top + band.height * 0.55;
+    const onSand = sandSections.some((sec) => {
+      const r = sec.getBoundingClientRect();
+      return r.top <= midY && r.bottom >= midY;
+    });
+    header.classList.toggle('is-on-sand', onSand);
+  }
+  ScrollTrigger.create({
+    start: 0,
+    end: 'max',
+    onUpdate: syncNavSand,
+    onRefresh: syncNavSand
+  });
+  syncNavSand();
   navToggle.addEventListener('click', () => {
     const open = !mobileMenu.classList.contains('is-open');
     mobileMenu.classList.toggle('is-open', open);
